@@ -1,0 +1,284 @@
+.app, html, body {
+  height: 100%;
+  margin: 0;
+}
+
+h1, h2, h3, h4 {
+  margin-top: 0;
+}
+
+.base-page {
+  padding: 1rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  gap: 1rem;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    h1, h2, h3, h4 {
+      margin: 0;
+    }
+    .total-scores-small {
+      display: flex;
+      gap: 1rem;
+      text-align: center;
+    }
+  }
+
+  .content {
+    flex-grow: 1;
+    display: flex;
+  }
+
+  .actions {
+    .p-button {
+      width: 100%;
+    }
+  }
+}
+
+
+.players-list {
+  display: flex;
+  position: absolute;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  padding: 1rem;
+  background: white;
+  flex-direction: column;
+  justify-content: space-between;
+
+  ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+
+    li {
+      margin-bottom: .5rem;
+      font-size: 1.5rem;
+    }
+  }
+
+  .list-actions {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .close-button {
+    width: 100%;
+  }
+
+}
+
+.add-player {
+  .add-form {
+    padding: .25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .p-inputtext {
+      flex-grow: 1;
+    }
+  }
+
+}
+
+.base-player {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .user-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.teams-setup {
+  .setup-table {
+    display: flex;
+    gap: 1rem;
+
+    .p-multiselect, .p-inputtext {
+      width: 100%;
+    }
+
+    .team-players {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+  }
+
+}
+
+.round-setup {
+  .content {
+    flex-direction: column;
+    gap: 0.5rem;
+    .round-data {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .trump {
+      h3 {
+        margin: 0;
+      }
+      .p-selectbutton {
+        display: flex;
+        width: 100%;
+        .p-button {
+          flex: 25%;
+          padding-left: 0;
+          padding-right: 0;
+        }
+      }
+    }
+    .current-trump {
+      display: flex;
+      place-content: center;
+      &:before {
+        display: block;
+        line-height: 1;
+        font-size: 6rem;
+      }
+
+      &.diamonds {
+        &:before {
+          content: '\2666';
+          color: var(--red-500);
+        }
+      }
+
+      &.hearts {
+        &:before {
+          content: '\2665';
+          color: var(--red-500);
+        }
+      }
+
+      &.clubs {
+        &:before {
+          content: '\2663';
+        }
+      }
+
+      &.spades {
+        &:before {
+          content: '\2660';
+        }
+      }
+    }
+    .played-by {
+      .p-selectbutton {
+        display: flex;
+        width: 100%;
+        .p-button {
+          flex: 50%;
+          justify-content: center;
+
+        }
+      }
+    }
+    .field-checkbox-input, .field-checkbox {
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      align-items: center;
+      label {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        flex: 1 0 auto;
+      }
+      .p-inputnumber {
+        flex: 0 1 auto;
+        .p-inputtext {
+          width: 10rem;
+        }
+      }
+    }
+    .round-scores {
+      &-team {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        h4 {
+          margin: 0;
+          flex: 1 0 auto;
+          width: 3rem;
+        }
+        .p-inputnumber {
+          flex: 0 1 auto;
+          .p-inputtext {
+            width: 100%;
+          }
+        }
+        .refresh-button {
+          flex: 1 0 auto;
+        }
+        .no-bribes-button{
+          flex: 1 0 auto;
+        }
+      }
+    }
+  }
+  .button-wrapper {
+    display: flex;
+    gap: .5rem;
+  }
+}
+
+.scores-page {
+  .content {
+    flex-direction: column;
+  }
+  .total-scores {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+
+    .team-one-score,
+    .team-two-score {
+      flex: 1 0 auto;
+      text-align: center;
+    }
+    .score-value {
+      font-size: 3rem;
+    }
+  }
+  .table-details {
+    margin-bottom: 3rem;
+  }
+  .winner {
+    text-align: center;
+  }
+  .button-wrapper {
+    display: flex;
+    gap: 1rem;
+  }
+}
+
+.p-dialog {
+    h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+  .edit-item {
+    margin-bottom: 2rem;
+  }
+  .p-inputnumber-input {
+    width: 9rem;
+  }
+}
