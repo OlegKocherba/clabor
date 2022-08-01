@@ -1,6 +1,6 @@
 <template>
   <base-page
-    :pageTitle="`Deal #${store.currentRoundNumber}`"
+    :page-title="`Deal #${store.currentRoundNumber}`"
     class="round-setup"
   >
     <template #content>
@@ -19,7 +19,7 @@
         <SelectButton
           v-model="currentRound.playedBy"
           :options="teams"
-          dataKey="value"
+          data-key="value"
         >
           <template #option="slotProps">
             <span>{{ slotProps.option.name }}</span
@@ -37,16 +37,16 @@
           </label>
           <InputNumber
             v-model="currentRound.terzAmount"
-            showButtons
-            buttonLayout="horizontal"
+            show-buttons
+            button-layout="horizontal"
             type="tel"
             :step="1"
             :min="0"
             :max="6"
-            decrementButtonClass="p-button-danger"
-            incrementButtonClass="p-button-success"
-            incrementButtonIcon="pi pi-plus"
-            decrementButtonIcon="pi pi-minus"
+            decrement-button-class="p-button-danger"
+            increment-button-class="p-button-success"
+            increment-button-icon="pi pi-plus"
+            decrement-button-icon="pi pi-minus"
           />
         </div>
         <div class="field-checkbox-input">
@@ -55,25 +55,25 @@
           </label>
           <InputNumber
             v-model="currentRound.poltinaAmount"
-            showButtons
+            show-buttons
             type="tel"
-            buttonLayout="horizontal"
+            button-layout="horizontal"
             :step="1"
             :min="0"
             :max="4"
-            decrementButtonClass="p-button-danger"
-            incrementButtonClass="p-button-success"
-            incrementButtonIcon="pi pi-plus"
-            decrementButtonIcon="pi pi-minus"
+            decrement-button-class="p-button-danger"
+            increment-button-class="p-button-success"
+            increment-button-icon="pi pi-plus"
+            decrement-button-icon="pi pi-minus"
           />
         </div>
         <ToggleButton
           v-model="currentRound.bella"
           class="no-bribes-button"
-          onLabel="Bela"
-          offLabel="Bela"
-          onIcon="pi pi-check"
-          offIcon="pi pi-times"
+          on-label="Bela"
+          off-label="Bela"
+          on-icon="pi pi-check"
+          off-icon="pi pi-times"
         />
         <Divider align="left" type="dashed">
           <b>Deal points</b>
@@ -96,13 +96,13 @@
               @click="updateTeamTwoRoundScore"
             />
             <ToggleButton
-              :disabled="currentRound.teamOneScore !== 0"
               v-model="currentRound.teamOneNoBribes"
+              :disabled="currentRound.teamOneScore !== 0"
               class="no-bribes-button"
-              onLabel="No tricks"
-              offLabel="No tricks"
-              onIcon="pi pi-check"
-              offIcon="pi pi-times"
+              on-label="No tricks"
+              off-label="No tricks"
+              on-icon="pi pi-check"
+              off-icon="pi pi-times"
             />
           </div>
           <div class="round-scores-team">
@@ -124,10 +124,10 @@
               v-model="currentRound.teamTwoNoBribes"
               :disabled="currentRound.teamTwoScore !== 0"
               class="no-bribes-button"
-              onLabel="No tricks"
-              offLabel="No tricks"
-              onIcon="pi pi-check"
-              offIcon="pi pi-times"
+              on-label="No tricks"
+              off-label="No tricks"
+              on-icon="pi pi-check"
+              off-icon="pi pi-times"
             />
           </div>
         </div>
@@ -150,8 +150,8 @@
     </template>
   </base-page>
   <Dialog
-    header="Confirmation"
     v-model:visible="store.showDialog"
+    header="Confirmation"
     :modal="true"
   >
     <div class="confirmation-content">
@@ -161,21 +161,21 @@
       <Button
         label="No"
         icon="pi pi-times"
-        @click="store.toggleDialog"
         class="p-button-text"
+        @click="store.toggleDialog"
       />
       <Button
         label="Yes"
         icon="pi pi-check"
-        @click="confirmDialog"
         class="p-button-text"
         autofocus
+        @click="confirmDialog"
       />
     </template>
   </Dialog>
 </template>
 
-<script>
+<script setup>
 import { ref, reactive, computed } from "vue";
 import { useClaborStore } from "../stores/claborState";
 import router from "../router/router";
@@ -186,114 +186,83 @@ import Button from "primevue/button";
 import ToggleButton from "primevue/togglebutton";
 import Divider from "primevue/divider";
 import Dialog from "primevue/dialog";
+const store = useClaborStore();
+const teams = ref([
+  { value: "teamOne", name: store.teamOne },
+  { value: "teamTwo", name: store.teamTwo },
+]);
 
-export default {
-  name: "RoundSetup",
-  components: {
-    BasePage,
-    SelectButton,
-    InputNumber,
-    Button,
-    ToggleButton,
-    Divider,
-    Dialog,
-  },
-  setup() {
-    const store = useClaborStore();
-    const teams = ref([
-      { value: "teamOne", name: store.teamOne },
-      { value: "teamTwo", name: store.teamTwo },
-    ]);
+const currentRound = reactive({
+  roundNumber: store.currentRoundNumber,
+  dealer: "",
+  playedBy: null,
+  trump: "diamonds",
+  terzAmount: 0,
+  poltinaAmount: 0,
+  bella: false,
+  teamOneScore: 0,
+  teamTwoScore: 0,
+  teamOneNoBribes: false,
+  teamTwoNoBribes: false,
+});
 
-    const currentRound = reactive({
-      roundNumber: store.currentRoundNumber,
-      dealer: "",
-      playedBy: null,
-      trump: "diamonds",
-      terzAmount: 0,
-      poltinaAmount: 0,
-      bella: false,
-      teamOneScore: 0,
-      teamTwoScore: 0,
-      teamOneNoBribes: false,
-      teamTwoNoBribes: false,
-    });
+const totalRoundSum = computed(() => {
+  const terz = currentRound.terzAmount ? currentRound.terzAmount * 20 : 0;
+  const potina = currentRound.poltinaAmount
+    ? currentRound.poltinaAmount * 50
+    : 0;
+  const bella = currentRound.bella ? 20 : 0;
+  return 162 + terz + potina + bella;
+});
 
-    const totalRoundSum = computed(() => {
-      const terz = currentRound.terzAmount ? currentRound.terzAmount * 20 : 0;
-      const potina = currentRound.poltinaAmount
-        ? currentRound.poltinaAmount * 50
-        : 0;
-      const bella = currentRound.bella ? 20 : 0;
-      return 162 + terz + potina + bella;
-    });
-
-    const updateTeamOneRoundScore = () => {
-      currentRound.teamOneScore =
-        totalRoundSum.value - currentRound.teamTwoScore;
-    };
-    const updateTeamTwoRoundScore = () => {
-      currentRound.teamTwoScore =
-        totalRoundSum.value - currentRound.teamOneScore;
-    };
-
-    const disableFinishRound = computed(() => {
-      const isWrongSum =
-        currentRound.teamOneScore + currentRound.teamTwoScore !==
-        totalRoundSum.value;
-      return isWrongSum || !currentRound.playedBy;
-    });
-
-    const isDraw = computed(() => {
-      return currentRound.teamOneScore === currentRound.teamTwoScore;
-    });
-
-    const finishRound = () => {
-      store.updateFullRoundScore({
-        ...currentRound,
-        currentRoundSum: totalRoundSum,
-        isDraw: isDraw.value,
-      });
-
-      const toSave = {
-        currentRoundNumber: store.currentRoundNumber,
-        isGameOn: store.isGameOn,
-        teamOne: store.teamOne,
-        teamTwo: store.teamTwo,
-        fullGame: store.fullGame,
-        game: store.game,
-      };
-      localStorage.setItem("game", JSON.stringify(toSave));
-      router.push("/scores");
-    };
-
-    const startNewGame = () => {
-      store.resetGame();
-      localStorage.removeItem("game");
-      router.push("/game-setup");
-    };
-
-    const confirmDialog = () => {
-      store.toggleDialog();
-      startNewGame();
-    };
-    const suits = ref(["hearts", "clubs", "diamonds", "spades"]);
-
-    return {
-      store,
-      suits,
-      teams,
-      finishRound,
-      disableFinishRound,
-      currentRound,
-      updateTeamOneRoundScore,
-      updateTeamTwoRoundScore,
-      totalRoundSum,
-      startNewGame,
-      confirmDialog,
-    };
-  },
+const updateTeamOneRoundScore = () => {
+  currentRound.teamOneScore = totalRoundSum.value - currentRound.teamTwoScore;
 };
+const updateTeamTwoRoundScore = () => {
+  currentRound.teamTwoScore = totalRoundSum.value - currentRound.teamOneScore;
+};
+
+const disableFinishRound = computed(() => {
+  const isWrongSum =
+    currentRound.teamOneScore + currentRound.teamTwoScore !==
+    totalRoundSum.value;
+  return isWrongSum || !currentRound.playedBy;
+});
+
+const isDraw = computed(() => {
+  return currentRound.teamOneScore === currentRound.teamTwoScore;
+});
+
+const finishRound = () => {
+  store.updateFullRoundScore({
+    ...currentRound,
+    currentRoundSum: totalRoundSum,
+    isDraw: isDraw.value,
+  });
+
+  const toSave = {
+    currentRoundNumber: store.currentRoundNumber,
+    isGameOn: store.isGameOn,
+    teamOne: store.teamOne,
+    teamTwo: store.teamTwo,
+    fullGame: store.fullGame,
+    game: store.game,
+  };
+  localStorage.setItem("game", JSON.stringify(toSave));
+  router.push("/scores");
+};
+
+const startNewGame = () => {
+  store.resetGame();
+  localStorage.removeItem("game");
+  router.push("/game-setup");
+};
+
+const confirmDialog = () => {
+  store.toggleDialog();
+  startNewGame();
+};
+// const suits = ref(["hearts", "clubs", "diamonds", "spades"]);
 </script>
 
 <style scoped></style>

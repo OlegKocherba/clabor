@@ -18,28 +18,15 @@
   </base-page>
 </template>
 
-<script>
+<script setup>
 import Button from "primevue/button";
 import router from "../router/router";
 import BasePage from "../components/BasePage.vue";
 
 import { useClaborStore } from "../stores/claborState";
-export default {
-  name: "StartPage",
-  components: {
-    Button,
-    BasePage,
-  },
-  setup() {
-    const store = useClaborStore();
-    const startGame = () => {
-      router.push({ name: "game-setup" });
-    };
-    return {
-      store,
-      startGame,
-    };
-  },
+const store = useClaborStore();
+const startGame = () => {
+  router.push({ name: "game-setup" });
 };
 </script>
 

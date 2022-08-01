@@ -28,7 +28,7 @@
       <div class="table-details">
         <DataTable
           :value="store.gameCountedArr"
-          showGridlines
+          show-gridlines
           breakpoint="250px"
           class="p-datatable-sm"
         >
@@ -75,24 +75,24 @@
             </template>
           </Column>
           <Column field="currentRoundSum" header="Sum"></Column>
-          <!--          <Column header="Edit">-->
-          <!--            <template #body="slotProps">-->
-          <!--              <Button-->
-          <!--                icon="pi pi-pencil"-->
-          <!--                class="p-button"-->
-          <!--                @click="editRound(slotProps.data.roundNumber)"-->
-          <!--              />-->
-          <!--            </template>-->
-          <!--          </Column>-->
+          <Column header="Edit">
+            <template #body="slotProps">
+              <Button
+                icon="pi pi-pencil"
+                class="p-button"
+                @click="editRound({ roundNumber: slotProps.data.roundNumber })"
+              />
+            </template>
+          </Column>
         </DataTable>
       </div>
-      <div class="winner" v-if="isWinner">
+      <div v-if="isWinner" class="winner">
         <h3>Winners</h3>
         <h1>{{ isWinner }}</h1>
       </div>
       <Dialog
-        header="Confirmation"
         v-model:visible="store.showDialog"
+        header="Confirmation"
         :modal="true"
       >
         <div class="confirmation-content">
@@ -102,15 +102,64 @@
           <Button
             label="No"
             icon="pi pi-times"
-            @click="store.toggleDialog"
             class="p-button-text"
+            @click="store.toggleDialog"
           />
           <Button
             label="Yes"
             icon="pi pi-check"
-            @click="confirmDialog"
             class="p-button-text"
             autofocus
+            @click="confirmDialog"
+          />
+        </template>
+      </Dialog>
+      <Dialog
+        v-model:visible="isEdit"
+        :header="`Edit deal #${currentEdit.roundNumber}`"
+        :modal="true"
+      >
+        <div class="edit-content">
+          <div class="edit-content-item">
+            <label for="">We</label>
+            <InputNumber
+              v-model.number="currentEdit.teamOneScore"
+              type="tel"
+              :min="0"
+              :max="currentEdit.currentRoundSum"
+            />
+          </div>
+          <div class="edit-content-item">
+            <label for="">They</label>
+            <InputNumber
+              v-model.number="currentEdit.teamTwoScore"
+              type="tel"
+              :min="0"
+              :max="currentEdit.currentRoundSum"
+            />
+          </div>
+          <div class="edit-content-item">
+            <label for="">Deal total</label>
+            <InputNumber
+              v-model.number="currentEdit.currentRoundSum"
+              type="tel"
+              :min="0"
+            />
+          </div>
+        </div>
+        <template #footer>
+          <Button
+            label="No"
+            icon="pi pi-times"
+            class="p-button-text"
+            @click="cancelEdit"
+          />
+          <Button
+            label="Yes"
+            icon="pi pi-check"
+            class="p-button-text"
+            autofocus
+            @click="applyEdit"
           />
         </template>
       </Dialog>
@@ -133,108 +182,92 @@
   </base-page>
 </template>
 
-<script>
+<script setup>
 import { computed, onMounted, ref, reactive } from "vue";
 
 import router from "../router/router";
 import BasePage from "./BasePage.vue";
+import InputNumber from "primevue/inputnumber";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import Badge from "primevue/badge";
 import Dialog from "primevue/dialog";
 import { useClaborStore } from "../stores/claborState";
+const store = useClaborStore();
+const isEdit = ref(false);
+const currentEdit = reactive({
+  roundNumber: 0,
+  teamOneScore: 0,
+  teamTwoScore: 0,
+  currentRoundSum: 0,
+});
+const continueGame = () => {
+  if (store.isGameOn) {
+    router.push("/round-setup");
+  }
+};
+const startNewGame = () => {
+  store.resetGame();
+  localStorage.removeItem("game");
+  router.push("/game-setup");
+};
 
-export default {
-  name: "ScoresTable",
-  components: {
-    BasePage,
-    DataTable,
-    Column,
-    Button,
-    Badge,
-    Dialog,
-  },
-  setup() {
-    const store = useClaborStore();
-    const isEdit = ref(false);
-    const currentEdit = reactive({
-      roundNumber: 0,
-      teamOneScore: 0,
-      teamTwoScore: 0,
-      currentRoundSum: 0,
-    });
-    const continueGame = () => {
-      if (store.isGameOn) {
-        router.push("/round-setup");
-      }
-    };
-    const startNewGame = () => {
-      store.resetGame();
-      localStorage.removeItem("game");
-      router.push("/game-setup");
-    };
+const bageSeverity = (count) => {
+  if (count === 1) {
+    return "success";
+  }
+  if (count === 2) {
+    return "warning";
+  }
+  if (count >= 3) {
+    return "danger";
+  }
+};
 
-    const bageSeverity = (count) => {
-      if (count === 1) {
-        return "success";
-      }
-      if (count === 2) {
-        return "warning";
-      }
-      if (count >= 3) {
-        return "danger";
-      }
-    };
+onMounted(() => {
+  if (
+    store.teamOneFullScore > 1001 ||
+    (store.teamTwoFullScore > 1001 &&
+      store.teamOneFullScore !== store.teamTwoFullScore)
+  ) {
+    store.finishGame();
+  }
+});
 
-    onMounted(() => {
-      if (store.teamOneFullScore > 1001 || store.teamTwoFullScore > 1001) {
-        store.finishGame();
-      }
-    });
+const isWinner = computed(() => {
+  const winner =
+    store.teamOneFullScore > store.teamTwoFullScore
+      ? store.teamOne
+      : store.teamTwo;
+  return !store.isGameOn && winner;
+});
 
-    const isWinner = computed(() => {
-      const winner =
-        store.teamOneFullScore > store.teamTwoFullScore
-          ? store.teamOne
-          : store.teamTwo;
-      return !store.isGameOn && winner;
-    });
+const editRound = ({ roundNumber }) => {
+  const toEdit = store.game.find((round) => round.roundNumber === roundNumber);
+  currentEdit.roundNumber = roundNumber;
+  currentEdit.teamOneScore = toEdit.teamOneScore;
+  currentEdit.teamTwoScore = toEdit.teamTwoScore;
+  currentEdit.currentRoundSum = toEdit.currentRoundSum;
+  isEdit.value = true;
+};
 
-    const editRound = (roundNumber) => {
-      const toEdit = store.game.find(
-        (round) => round.roundNumber === roundNumber
-      );
-      currentEdit.roundNumber = roundNumber;
-      currentEdit.teamOneScore = toEdit.teamOneScore;
-      currentEdit.teamTwoScore = toEdit.teamTwoScore;
-      currentEdit.currentRoundSum = toEdit.currentRoundSum;
-      isEdit.value = true;
-    };
+const applyEdit = () => {
+  store.editGameRound({ currentEdit });
+  isEdit.value = false;
+};
 
-    const finishEdit = (roundNumber) => {
-      store.editGameRound(roundNumber, currentEdit);
-      isEdit.value = false;
-    };
+const cancelEdit = () => {
+  isEdit.value = false;
+  currentEdit.roundNumber = 0;
+  currentEdit.teamOneScore = 0;
+  currentEdit.teamTwoScore = 0;
+  currentEdit.currentRoundSum = 0;
+};
 
-    const confirmDialog = () => {
-      store.toggleDialog();
-      startNewGame();
-    };
-
-    return {
-      store,
-      continueGame,
-      startNewGame,
-      bageSeverity,
-      isWinner,
-      editRound,
-      finishEdit,
-      isEdit,
-      currentEdit,
-      confirmDialog,
-    };
-  },
+const confirmDialog = () => {
+  store.toggleDialog();
+  startNewGame();
 };
 </script>
 

@@ -28,7 +28,7 @@
 import { useClaborStore } from "../stores/claborState";
 const store = useClaborStore();
 const props = defineProps({
-  name: {
+  pageTitle: {
     type: String,
     default: "",
   },

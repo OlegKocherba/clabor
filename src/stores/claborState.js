@@ -128,10 +128,12 @@ export const useClaborStore = defineStore({
       this.game.push(roundData);
       this.currentRoundNumber++;
     },
-    editGameRound(roundNumber, currentEdit) {
-      this.game = this.game.map((round) =>
-        round.roundNumber === roundNumber ? { ...round, ...currentEdit } : round
-      );
+    editGameRound({ currentEdit }) {
+      this.game = this.game.map((round) => {
+        return round.roundNumber === currentEdit.roundNumber
+          ? { ...round, ...currentEdit }
+          : round;
+      });
     },
     resetGame() {
       this.game = [];
