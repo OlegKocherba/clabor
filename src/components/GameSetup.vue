@@ -1,3 +1,30 @@
+<script setup>
+// import { ref, computed } from "vue";
+import router from "../router/router";
+// import BasePlayer from "./BasePlayer.vue";
+import InputText from "primevue/inputtext";
+import Button from "primevue/button";
+// import MultiSelect from "primevue/multiselect";
+import { useClaborStore } from "../stores/claborState";
+import BasePage from "./BasePage.vue";
+
+const store = useClaborStore();
+// const selectedTeam1 = ref();
+// const selectedTeam2 = ref();
+// const playersListTeam1 = computed(() => {
+//   return store.playersList.filter((el) => {
+//     return el.team !== "teamTwo";
+//   });
+// });
+// const playersListTeam2 = computed(() => {
+//   return store.playersList.filter((el) => {
+//     return el.team !== "teamOne";
+//   });
+// });
+const startGame = () => {
+  router.push("/round-setup");
+};
+</script>
 <template>
   <base-page class="teams-setup" page-title="Teams setup">
     <template #content>
@@ -54,33 +81,4 @@
     </template>
   </base-page>
 </template>
-
-<script setup>
-// import { ref, computed } from "vue";
-import router from "../router/router";
-// import BasePlayer from "./BasePlayer.vue";
-import InputText from "primevue/inputtext";
-import Button from "primevue/button";
-// import MultiSelect from "primevue/multiselect";
-import { useClaborStore } from "../stores/claborState";
-import BasePage from "./BasePage.vue";
-
-const store = useClaborStore();
-// const selectedTeam1 = ref();
-// const selectedTeam2 = ref();
-// const playersListTeam1 = computed(() => {
-//   return store.playersList.filter((el) => {
-//     return el.team !== "teamTwo";
-//   });
-// });
-// const playersListTeam2 = computed(() => {
-//   return store.playersList.filter((el) => {
-//     return el.team !== "teamOne";
-//   });
-// });
-const startGame = () => {
-  router.push("/round-setup");
-};
-</script>
-
 <style scoped></style>

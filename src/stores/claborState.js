@@ -18,6 +18,7 @@ export const useClaborStore = defineStore({
     drawScores: "",
     fullGame: 1001,
     game: [],
+    secondBaitMark: false,
   }),
   getters: {
     teamOneList(state) {
@@ -139,6 +140,7 @@ export const useClaborStore = defineStore({
       this.game = [];
       this.currentRoundNumber = 1;
       this.isGameOn = true;
+      this.secondBaitMark = false;
     },
     finishGame() {
       this.isGameOn = false;

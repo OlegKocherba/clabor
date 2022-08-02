@@ -1,3 +1,93 @@
+<script setup>
+import { ref, reactive, computed } from "vue";
+import { useClaborStore } from "../stores/claborState";
+import router from "../router/router";
+import BasePage from "./BasePage.vue";
+import SelectButton from "primevue/selectbutton";
+import InputNumber from "primevue/inputnumber";
+import Button from "primevue/button";
+import ToggleButton from "primevue/togglebutton";
+import Divider from "primevue/divider";
+import Dialog from "primevue/dialog";
+const store = useClaborStore();
+const teams = ref([
+  { value: "teamOne", name: store.teamOne },
+  { value: "teamTwo", name: store.teamTwo },
+]);
+
+const currentRound = reactive({
+  roundNumber: store.currentRoundNumber,
+  dealer: "",
+  playedBy: null,
+  trump: "diamonds",
+  terzAmount: 0,
+  poltinaAmount: 0,
+  bella: false,
+  teamOneScore: 0,
+  teamTwoScore: 0,
+  teamOneNoBribes: false,
+  teamTwoNoBribes: false,
+});
+
+const totalRoundSum = computed(() => {
+  const terz = currentRound.terzAmount ? currentRound.terzAmount * 20 : 0;
+  const potina = currentRound.poltinaAmount
+    ? currentRound.poltinaAmount * 50
+    : 0;
+  const bella = currentRound.bella ? 20 : 0;
+  return 162 + terz + potina + bella;
+});
+
+const updateTeamOneRoundScore = () => {
+  currentRound.teamOneScore = totalRoundSum.value - currentRound.teamTwoScore;
+};
+const updateTeamTwoRoundScore = () => {
+  currentRound.teamTwoScore = totalRoundSum.value - currentRound.teamOneScore;
+};
+
+const disableFinishRound = computed(() => {
+  const isWrongSum =
+    currentRound.teamOneScore + currentRound.teamTwoScore !==
+    totalRoundSum.value;
+  return isWrongSum || !currentRound.playedBy;
+});
+
+const isDraw = computed(() => {
+  return currentRound.teamOneScore === currentRound.teamTwoScore;
+});
+
+const finishRound = () => {
+  store.updateFullRoundScore({
+    ...currentRound,
+    currentRoundSum: totalRoundSum,
+    isDraw: isDraw.value,
+  });
+
+  const toSave = {
+    currentRoundNumber: store.currentRoundNumber,
+    isGameOn: store.isGameOn,
+    teamOne: store.teamOne,
+    teamTwo: store.teamTwo,
+    fullGame: store.fullGame,
+    game: store.game,
+  };
+  localStorage.setItem("game", JSON.stringify(toSave));
+  router.push("/scores");
+};
+
+const startNewGame = () => {
+  store.resetGame();
+  localStorage.removeItem("game");
+  router.push("/game-setup");
+};
+
+const confirmDialog = () => {
+  store.toggleDialog();
+  startNewGame();
+};
+// const suits = ref(["hearts", "clubs", "diamonds", "spades"]);
+</script>
+
 <template>
   <base-page
     :page-title="`Deal #${store.currentRoundNumber}`"
@@ -174,95 +264,5 @@
     </template>
   </Dialog>
 </template>
-
-<script setup>
-import { ref, reactive, computed } from "vue";
-import { useClaborStore } from "../stores/claborState";
-import router from "../router/router";
-import BasePage from "./BasePage.vue";
-import SelectButton from "primevue/selectbutton";
-import InputNumber from "primevue/inputnumber";
-import Button from "primevue/button";
-import ToggleButton from "primevue/togglebutton";
-import Divider from "primevue/divider";
-import Dialog from "primevue/dialog";
-const store = useClaborStore();
-const teams = ref([
-  { value: "teamOne", name: store.teamOne },
-  { value: "teamTwo", name: store.teamTwo },
-]);
-
-const currentRound = reactive({
-  roundNumber: store.currentRoundNumber,
-  dealer: "",
-  playedBy: null,
-  trump: "diamonds",
-  terzAmount: 0,
-  poltinaAmount: 0,
-  bella: false,
-  teamOneScore: 0,
-  teamTwoScore: 0,
-  teamOneNoBribes: false,
-  teamTwoNoBribes: false,
-});
-
-const totalRoundSum = computed(() => {
-  const terz = currentRound.terzAmount ? currentRound.terzAmount * 20 : 0;
-  const potina = currentRound.poltinaAmount
-    ? currentRound.poltinaAmount * 50
-    : 0;
-  const bella = currentRound.bella ? 20 : 0;
-  return 162 + terz + potina + bella;
-});
-
-const updateTeamOneRoundScore = () => {
-  currentRound.teamOneScore = totalRoundSum.value - currentRound.teamTwoScore;
-};
-const updateTeamTwoRoundScore = () => {
-  currentRound.teamTwoScore = totalRoundSum.value - currentRound.teamOneScore;
-};
-
-const disableFinishRound = computed(() => {
-  const isWrongSum =
-    currentRound.teamOneScore + currentRound.teamTwoScore !==
-    totalRoundSum.value;
-  return isWrongSum || !currentRound.playedBy;
-});
-
-const isDraw = computed(() => {
-  return currentRound.teamOneScore === currentRound.teamTwoScore;
-});
-
-const finishRound = () => {
-  store.updateFullRoundScore({
-    ...currentRound,
-    currentRoundSum: totalRoundSum,
-    isDraw: isDraw.value,
-  });
-
-  const toSave = {
-    currentRoundNumber: store.currentRoundNumber,
-    isGameOn: store.isGameOn,
-    teamOne: store.teamOne,
-    teamTwo: store.teamTwo,
-    fullGame: store.fullGame,
-    game: store.game,
-  };
-  localStorage.setItem("game", JSON.stringify(toSave));
-  router.push("/scores");
-};
-
-const startNewGame = () => {
-  store.resetGame();
-  localStorage.removeItem("game");
-  router.push("/game-setup");
-};
-
-const confirmDialog = () => {
-  store.toggleDialog();
-  startNewGame();
-};
-// const suits = ref(["hearts", "clubs", "diamonds", "spades"]);
-</script>
 
 <style scoped></style>

@@ -1,3 +1,15 @@
+<script setup>
+import Button from "primevue/button";
+import router from "../router/router";
+import BasePage from "../components/BasePage.vue";
+
+import { useClaborStore } from "../stores/claborState";
+const store = useClaborStore();
+const startGame = () => {
+  router.push({ name: "game-setup" });
+};
+</script>
+
 <template>
   <base-page class="start-page">
     <template #content>
@@ -17,18 +29,6 @@
     </template>
   </base-page>
 </template>
-
-<script setup>
-import Button from "primevue/button";
-import router from "../router/router";
-import BasePage from "../components/BasePage.vue";
-
-import { useClaborStore } from "../stores/claborState";
-const store = useClaborStore();
-const startGame = () => {
-  router.push({ name: "game-setup" });
-};
-</script>
 
 <style lang="scss" scoped>
 .start-page {

@@ -1,3 +1,14 @@
+<script setup>
+import { useClaborStore } from "../stores/claborState";
+const store = useClaborStore();
+const props = defineProps({
+  pageTitle: {
+    type: String,
+    default: "",
+  },
+});
+</script>
+
 <template>
   <div class="base-page">
     <div v-if="props.pageTitle" class="header">
@@ -24,14 +35,4 @@
   </div>
 </template>
 
-<script setup>
-import { useClaborStore } from "../stores/claborState";
-const store = useClaborStore();
-const props = defineProps({
-  pageTitle: {
-    type: String,
-    default: "",
-  },
-});
-</script>
 <style scoped></style>

@@ -1,3 +1,101 @@
+<script setup>
+import { computed, onMounted, ref, reactive } from "vue";
+
+import router from "../router/router";
+import BasePage from "./BasePage.vue";
+import InputNumber from "primevue/inputnumber";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import Button from "primevue/button";
+import Badge from "primevue/badge";
+import Dialog from "primevue/dialog";
+import { useClaborStore } from "../stores/claborState";
+const store = useClaborStore();
+const isEdit = ref(false);
+const currentEdit = reactive({
+  roundNumber: 0,
+  teamOneScore: 0,
+  teamTwoScore: 0,
+  currentRoundSum: 0,
+});
+const continueGame = () => {
+  if (store.isGameOn) {
+    router.push("/round-setup");
+  }
+};
+const startNewGame = () => {
+  store.resetGame();
+  localStorage.removeItem("game");
+  router.push("/game-setup");
+};
+
+const bageSeverity = (count) => {
+  if (count === 1) {
+    return "success";
+  }
+  if (count === 2) {
+    return "warning";
+  }
+  if (count >= 3) {
+    return "danger";
+  }
+};
+
+onMounted(() => {
+  if (
+    store.teamOneFullScore > 1001 ||
+    (store.teamTwoFullScore > 1001 &&
+      store.teamOneFullScore !== store.teamTwoFullScore)
+  ) {
+    store.finishGame();
+  }
+
+  if (
+    (store.teamOneBaitsCount === 2 || store.teamTwoBaitsCount === 2) &&
+    !store.secondBaitMark
+  ) {
+    store.secondBaitMark = true;
+    let audio = new Audio("b2.mp3");
+    audio.play();
+  }
+});
+
+const isWinner = computed(() => {
+  const winner =
+    store.teamOneFullScore > store.teamTwoFullScore
+      ? store.teamOne
+      : store.teamTwo;
+  return !store.isGameOn && winner;
+});
+
+const editRound = ({ roundNumber }) => {
+  const toEdit = store.game.find((round) => round.roundNumber === roundNumber);
+  currentEdit.roundNumber = roundNumber;
+  currentEdit.teamOneScore = toEdit.teamOneScore;
+  currentEdit.teamTwoScore = toEdit.teamTwoScore;
+  currentEdit.currentRoundSum = toEdit.currentRoundSum;
+  isEdit.value = true;
+};
+
+const applyEdit = () => {
+  store.editGameRound({ currentEdit });
+  isEdit.value = false;
+};
+
+const cancelEdit = () => {
+  isEdit.value = false;
+  currentEdit.roundNumber = 0;
+  currentEdit.teamOneScore = 0;
+  currentEdit.teamTwoScore = 0;
+  currentEdit.currentRoundSum = 0;
+};
+
+const confirmDialog = () => {
+  store.toggleDialog();
+  startNewGame();
+};
+</script>
+
 <template>
   <base-page class="scores-page" page-title="Scores">
     <template #content>
@@ -181,94 +279,5 @@
     </template>
   </base-page>
 </template>
-
-<script setup>
-import { computed, onMounted, ref, reactive } from "vue";
-
-import router from "../router/router";
-import BasePage from "./BasePage.vue";
-import InputNumber from "primevue/inputnumber";
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
-import Button from "primevue/button";
-import Badge from "primevue/badge";
-import Dialog from "primevue/dialog";
-import { useClaborStore } from "../stores/claborState";
-const store = useClaborStore();
-const isEdit = ref(false);
-const currentEdit = reactive({
-  roundNumber: 0,
-  teamOneScore: 0,
-  teamTwoScore: 0,
-  currentRoundSum: 0,
-});
-const continueGame = () => {
-  if (store.isGameOn) {
-    router.push("/round-setup");
-  }
-};
-const startNewGame = () => {
-  store.resetGame();
-  localStorage.removeItem("game");
-  router.push("/game-setup");
-};
-
-const bageSeverity = (count) => {
-  if (count === 1) {
-    return "success";
-  }
-  if (count === 2) {
-    return "warning";
-  }
-  if (count >= 3) {
-    return "danger";
-  }
-};
-
-onMounted(() => {
-  if (
-    store.teamOneFullScore > 1001 ||
-    (store.teamTwoFullScore > 1001 &&
-      store.teamOneFullScore !== store.teamTwoFullScore)
-  ) {
-    store.finishGame();
-  }
-});
-
-const isWinner = computed(() => {
-  const winner =
-    store.teamOneFullScore > store.teamTwoFullScore
-      ? store.teamOne
-      : store.teamTwo;
-  return !store.isGameOn && winner;
-});
-
-const editRound = ({ roundNumber }) => {
-  const toEdit = store.game.find((round) => round.roundNumber === roundNumber);
-  currentEdit.roundNumber = roundNumber;
-  currentEdit.teamOneScore = toEdit.teamOneScore;
-  currentEdit.teamTwoScore = toEdit.teamTwoScore;
-  currentEdit.currentRoundSum = toEdit.currentRoundSum;
-  isEdit.value = true;
-};
-
-const applyEdit = () => {
-  store.editGameRound({ currentEdit });
-  isEdit.value = false;
-};
-
-const cancelEdit = () => {
-  isEdit.value = false;
-  currentEdit.roundNumber = 0;
-  currentEdit.teamOneScore = 0;
-  currentEdit.teamTwoScore = 0;
-  currentEdit.currentRoundSum = 0;
-};
-
-const confirmDialog = () => {
-  store.toggleDialog();
-  startNewGame();
-};
-</script>
 
 <style scoped></style>
