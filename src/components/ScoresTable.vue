@@ -9,7 +9,7 @@ import Column from "primevue/column";
 import Button from "primevue/button";
 import Badge from "primevue/badge";
 import Dialog from "primevue/dialog";
-import { useClaborStore } from "../stores/claborState";
+import { useClaborStore } from "@/stores/claborState";
 const store = useClaborStore();
 const isEdit = ref(false);
 const currentEdit = reactive({
@@ -43,8 +43,8 @@ const bageSeverity = (count) => {
 
 onMounted(() => {
   if (
-    store.teamOneFullScore > 1001 ||
-    (store.teamTwoFullScore > 1001 &&
+    store.teamOneFullScore > store.fullGame.value ||
+    (store.teamTwoFullScore > store.fullGame.value &&
       store.teamOneFullScore !== store.teamTwoFullScore)
   ) {
     store.finishGame();
@@ -56,6 +56,14 @@ onMounted(() => {
   ) {
     store.secondBaitMark = true;
     let audio = new Audio("b2.mp3");
+    audio.play();
+  }
+  if (
+    (store.teamOneBaitsCount === 3 || store.teamTwoBaitsCount === 3) &&
+    !store.thirdBaitMark
+  ) {
+    store.thirdBaitMark = true;
+    let audio = new Audio("minus100.m4a");
     audio.play();
   }
 });
@@ -103,7 +111,7 @@ const confirmDialog = () => {
         <div class="team-one-score">
           <h1 class="mb-1">{{ store.teamOne }}</h1>
           <Badge
-            :value="`Б ${store.teamOneBaitsCount}`"
+            :value="`B-${store.teamOneBaitsCount}`"
             size="large"
             :severity="bageSeverity(store.teamOneBaitsCount)"
             :class="{ 'opacity-0': store.teamOneBaitsCount === 0 }"
@@ -113,7 +121,7 @@ const confirmDialog = () => {
         <div class="team-two-score">
           <h1 class="mb-1">{{ store.teamTwo }}</h1>
           <Badge
-            :value="`Б ${store.teamTwoBaitsCount}`"
+            :value="`B-${store.teamTwoBaitsCount}`"
             size="large"
             :severity="bageSeverity(store.teamTwoBaitsCount)"
             :class="{ 'opacity-0': store.teamTwoBaitsCount === 0 }"
@@ -223,7 +231,6 @@ const confirmDialog = () => {
             <InputNumber
               v-model.number="currentEdit.teamOneScore"
               type="tel"
-              :min="0"
               :max="currentEdit.currentRoundSum"
             />
           </div>
@@ -232,7 +239,6 @@ const confirmDialog = () => {
             <InputNumber
               v-model.number="currentEdit.teamTwoScore"
               type="tel"
-              :min="0"
               :max="currentEdit.currentRoundSum"
             />
           </div>
@@ -241,7 +247,6 @@ const confirmDialog = () => {
             <InputNumber
               v-model.number="currentEdit.currentRoundSum"
               type="tel"
-              :min="0"
             />
           </div>
         </div>

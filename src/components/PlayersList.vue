@@ -1,3 +1,29 @@
+<script setup>
+import { ref } from "vue";
+
+import BasePlayer from "./BasePlayer.vue";
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import { useClaborStore } from "@/stores/claborState";
+
+const store = useClaborStore();
+const displayModal = ref(false);
+const inputData = ref("");
+// const hideList = () => {
+//   store.togglePlayersList();
+// };
+const deletePlayer = (name) => {
+  store.deletePlayer(name);
+};
+const closeModal = () => {
+  store.addPlayer(inputData.value);
+  inputData.value = "";
+  displayModal.value = false;
+};
+const showModal = () => (displayModal.value = true);
+</script>
+
 <template>
   <div class="players-list">
     <h2>Available players</h2>
@@ -19,61 +45,19 @@
       />
     </div>
     <Dialog
+      v-model:visible="displayModal"
       class="add-player"
       header="Add player to list"
-      v-model:visible="displayModal"
       :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
       :style="{ width: '100vw' }"
       :modal="true"
     >
       <div class="add-form">
         <InputText v-model="inputData" />
-        <Button icon="pi pi-check" @click="closeModal" autofocus />
+        <Button icon="pi pi-check" autofocus @click="closeModal" />
       </div>
     </Dialog>
   </div>
 </template>
-
-<script>
-import { ref } from "vue";
-
-import BasePlayer from "./BasePlayer.vue";
-import Button from "primevue/button";
-import Dialog from "primevue/dialog";
-import InputText from "primevue/inputtext";
-import { useClaborStore } from "../stores/claborState";
-
-export default {
-  name: "PlayersList",
-  components: { BasePlayer, Button, Dialog, InputText },
-  setup() {
-    const store = useClaborStore();
-    const displayModal = ref(false);
-    const inputData = ref("");
-    const hideList = () => {
-      store.togglePlayersList();
-    };
-    const deletePlayer = (name) => {
-      store.deletePlayer(name);
-    };
-    const closeModal = () => {
-      store.addPlayer(inputData.value);
-      inputData.value = "";
-      displayModal.value = false;
-    };
-    const showModal = () => (displayModal.value = true);
-
-    return {
-      store,
-      hideList,
-      deletePlayer,
-      showModal,
-      closeModal,
-      displayModal,
-      inputData,
-    };
-  },
-};
-</script>
 
 <style scoped></style>

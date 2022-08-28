@@ -16,9 +16,10 @@ export const useClaborStore = defineStore({
     teamOne: "We",
     teamTwo: "They",
     drawScores: "",
-    fullGame: 1001,
+    fullGame: { value: 1001, name: "Big game" },
     game: [],
     secondBaitMark: false,
+    thirdBaitMark: false,
   }),
   getters: {
     teamOneList(state) {
@@ -141,6 +142,8 @@ export const useClaborStore = defineStore({
       this.currentRoundNumber = 1;
       this.isGameOn = true;
       this.secondBaitMark = false;
+      this.thirdBaitMark = false;
+      this.fullGame = { value: 1001, name: "Big game" };
     },
     finishGame() {
       this.isGameOn = false;

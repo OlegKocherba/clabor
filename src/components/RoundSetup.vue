@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed } from "vue";
-import { useClaborStore } from "../stores/claborState";
+import { useClaborStore } from "@/stores/claborState";
 import router from "../router/router";
 import BasePage from "./BasePage.vue";
 import SelectButton from "primevue/selectbutton";

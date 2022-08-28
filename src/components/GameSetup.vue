@@ -3,12 +3,19 @@
 import router from "../router/router";
 // import BasePlayer from "./BasePlayer.vue";
 import InputText from "primevue/inputtext";
+import SelectButton from "primevue/selectbutton";
 import Button from "primevue/button";
 // import MultiSelect from "primevue/multiselect";
-import { useClaborStore } from "../stores/claborState";
+import { useClaborStore } from "@/stores/claborState";
 import BasePage from "./BasePage.vue";
+import { ref } from "vue";
 
 const store = useClaborStore();
+
+const fullScores = ref([
+  { value: 1001, name: "Big game" },
+  { value: 501, name: "Small game" },
+]);
 // const selectedTeam1 = ref();
 // const selectedTeam2 = ref();
 // const playersListTeam1 = computed(() => {
@@ -28,6 +35,18 @@ const startGame = () => {
 <template>
   <base-page class="teams-setup" page-title="Teams setup">
     <template #content>
+      <div class="full-game-score">
+        <SelectButton
+          v-model="store.fullGame"
+          :options="fullScores"
+          data-key="value"
+        >
+          <template #option="slotProps">
+            <span>{{ slotProps.option.name }}</span
+            ><span></span>
+          </template>
+        </SelectButton>
+      </div>
       <div class="setup-table">
         <div class="team-one team">
           <h3 class="label">Team 1</h3>
