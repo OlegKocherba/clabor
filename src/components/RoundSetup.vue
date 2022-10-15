@@ -64,7 +64,6 @@ const finishRound = () => {
   });
 
   const toSave = {
-    currentRoundNumber: store.currentRoundNumber,
     isGameOn: store.isGameOn,
     teamOne: store.teamOne,
     teamTwo: store.teamTwo,

@@ -1,9 +1,8 @@
 <script setup>
-import { computed, onMounted, ref, reactive } from "vue";
+import { computed, onMounted } from "vue";
 
 import router from "../router/router";
 import BasePage from "./BasePage.vue";
-import InputNumber from "primevue/inputnumber";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
@@ -11,13 +10,7 @@ import Badge from "primevue/badge";
 import Dialog from "primevue/dialog";
 import { useClaborStore } from "@/stores/claborState";
 const store = useClaborStore();
-const isEdit = ref(false);
-const currentEdit = reactive({
-  roundNumber: 0,
-  teamOneScore: 0,
-  teamTwoScore: 0,
-  currentRoundSum: 0,
-});
+
 const continueGame = () => {
   if (store.isGameOn) {
     router.push("/round-setup");
@@ -75,28 +68,6 @@ const isWinner = computed(() => {
       : store.teamTwo;
   return !store.isGameOn && winner;
 });
-
-const editRound = ({ roundNumber }) => {
-  const toEdit = store.game.find((round) => round.roundNumber === roundNumber);
-  currentEdit.roundNumber = roundNumber;
-  currentEdit.teamOneScore = toEdit.teamOneScore;
-  currentEdit.teamTwoScore = toEdit.teamTwoScore;
-  currentEdit.currentRoundSum = toEdit.currentRoundSum;
-  isEdit.value = true;
-};
-
-const applyEdit = () => {
-  store.editGameRound({ currentEdit });
-  isEdit.value = false;
-};
-
-const cancelEdit = () => {
-  isEdit.value = false;
-  currentEdit.roundNumber = 0;
-  currentEdit.teamOneScore = 0;
-  currentEdit.teamTwoScore = 0;
-  currentEdit.currentRoundSum = 0;
-};
 
 const confirmDialog = () => {
   store.toggleDialog();
@@ -181,12 +152,13 @@ const confirmDialog = () => {
             </template>
           </Column>
           <Column field="currentRoundSum" header="Sum"></Column>
-          <Column header="Edit">
+          <Column header="Edit" class="text-center">
             <template #body="slotProps">
               <Button
-                icon="pi pi-pencil"
+                v-if="slotProps.data.isLatest"
+                icon="pi pi-trash"
                 class="p-button"
-                @click="editRound({ roundNumber: slotProps.data.roundNumber })"
+                @click="store.deleteRound(slotProps.data.roundNumber)"
               />
             </template>
           </Column>
@@ -217,52 +189,6 @@ const confirmDialog = () => {
             class="p-button-text"
             autofocus
             @click="confirmDialog"
-          />
-        </template>
-      </Dialog>
-      <Dialog
-        v-model:visible="isEdit"
-        :header="`Edit deal #${currentEdit.roundNumber}`"
-        :modal="true"
-      >
-        <div class="edit-content">
-          <div class="edit-content-item">
-            <label for="">We</label>
-            <InputNumber
-              v-model.number="currentEdit.teamOneScore"
-              type="tel"
-              :max="currentEdit.currentRoundSum"
-            />
-          </div>
-          <div class="edit-content-item">
-            <label for="">They</label>
-            <InputNumber
-              v-model.number="currentEdit.teamTwoScore"
-              type="tel"
-              :max="currentEdit.currentRoundSum"
-            />
-          </div>
-          <div class="edit-content-item">
-            <label for="">Deal total</label>
-            <InputNumber
-              v-model.number="currentEdit.currentRoundSum"
-              type="tel"
-            />
-          </div>
-        </div>
-        <template #footer>
-          <Button
-            label="No"
-            icon="pi pi-times"
-            class="p-button-text"
-            @click="cancelEdit"
-          />
-          <Button
-            label="Yes"
-            icon="pi pi-check"
-            class="p-button-text"
-            autofocus
-            @click="applyEdit"
           />
         </template>
       </Dialog>

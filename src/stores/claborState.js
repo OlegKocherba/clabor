@@ -11,7 +11,6 @@ export const useClaborStore = defineStore({
       { name: "Tolik", team: "", value: "Tolik" },
       { name: "Sergey", team: "", value: "Sergey" },
     ],
-    currentRoundNumber: 1,
     isGameOn: true,
     teamOne: "We",
     teamTwo: "They",
@@ -22,6 +21,9 @@ export const useClaborStore = defineStore({
     thirdBaitMark: false,
   }),
   getters: {
+    currentRoundNumber() {
+      return this.game.length + 1;
+    },
     teamOneList(state) {
       return state.playersList.filter((item) => item.team === "teamOne");
     },
@@ -107,8 +109,8 @@ export const useClaborStore = defineStore({
         if (item.teamTwoNoBribes && item.teamTwoScore === 0) {
           item.teamTwoScore = -100;
         }
-
-        return { ...item, hasBait };
+        const isLatest = idx === arr.length - 1;
+        return { ...item, hasBait, isLatest };
       });
     },
   },
@@ -128,18 +130,12 @@ export const useClaborStore = defineStore({
 
     updateFullRoundScore(roundData) {
       this.game.push(roundData);
-      this.currentRoundNumber++;
     },
-    editGameRound({ currentEdit }) {
-      this.game = this.game.map((round) => {
-        return round.roundNumber === currentEdit.roundNumber
-          ? { ...round, ...currentEdit }
-          : round;
-      });
+    deleteRound(round) {
+      this.game = this.game.filter((el) => round !== el.roundNumber);
     },
     resetGame() {
       this.game = [];
-      this.currentRoundNumber = 1;
       this.isGameOn = true;
       this.secondBaitMark = false;
       this.thirdBaitMark = false;
